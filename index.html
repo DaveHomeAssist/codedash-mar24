@@ -3,560 +3,812 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Code Dashboard — Mar 26, 2026</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<title>Code Dashboard // Dave OS</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0b0f;
-    --surface: #12131a;
-    --surface-raised: #1a1b24;
-    --border: #2a2b36;
-    --text: #e8e9ed;
-    --text-dim: #7a7d8e;
-    --accent: #6ee7b7;
-    --accent-dim: rgba(110,231,183,0.1);
-    --orange: #fb923c;
-    --orange-dim: rgba(251,146,60,0.1);
-    --blue: #7dd3fc;
-    --blue-dim: rgba(125,211,252,0.1);
-    --pink: #f0abfc;
-    --pink-dim: rgba(240,171,252,0.1);
-    --yellow: #fde68a;
-    --yellow-dim: rgba(253,230,138,0.1);
-    --red: #fca5a5;
-    --red-dim: rgba(252,165,165,0.1);
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Outfit', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* Noise overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 999;
-  }
-
-  /* Grid background */
-  .grid-bg {
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(110,231,183,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(110,231,183,0.03) 1px, transparent 1px);
-    background-size: 60px 60px;
-    pointer-events: none;
-  }
-
-  .container {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 40px 32px;
-    position: relative;
-  }
-
-  /* Header */
-  .header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 48px;
-    padding-bottom: 32px;
-    border-bottom: 1px solid var(--border);
-    animation: fadeSlideDown 0.6s ease-out;
-  }
-
-  .header-left h1 {
-    font-size: 42px;
-    font-weight: 800;
-    letter-spacing: -1.5px;
-    line-height: 1;
-    background: linear-gradient(135deg, var(--accent), var(--blue));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .header-left .subtitle {
-    font-family: 'JetBrains Mono', monospace;
-    color: var(--text-dim);
-    font-size: 13px;
-    margin-top: 8px;
-    letter-spacing: 0.5px;
-  }
-
-  .header-right {
-    text-align: right;
-  }
-
-  .date-badge {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
-    color: var(--accent);
-    background: var(--accent-dim);
-    padding: 6px 14px;
-    border-radius: 6px;
-    border: 1px solid rgba(110,231,183,0.15);
-  }
-
-  .pulse {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background: var(--accent);
-    border-radius: 50%;
-    margin-right: 8px;
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  /* Stats row */
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 40px;
-  }
-
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-    position: relative;
-    overflow: hidden;
-    animation: fadeSlideUp 0.5s ease-out both;
-  }
-
-  .stat-card:nth-child(1) { animation-delay: 0.1s; }
-  .stat-card:nth-child(2) { animation-delay: 0.15s; }
-  .stat-card:nth-child(3) { animation-delay: 0.2s; }
-  .stat-card:nth-child(4) { animation-delay: 0.25s; }
-
-  .stat-card::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-  }
-
-  .stat-card.green::after { background: linear-gradient(90deg, var(--accent), transparent); }
-  .stat-card.orange::after { background: linear-gradient(90deg, var(--orange), transparent); }
-  .stat-card.blue::after { background: linear-gradient(90deg, var(--blue), transparent); }
-  .stat-card.pink::after { background: linear-gradient(90deg, var(--pink), transparent); }
-
-  .stat-label {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--text-dim);
-    margin-bottom: 8px;
-    font-weight: 600;
-  }
-
-  .stat-value {
-    font-size: 40px;
-    font-weight: 800;
-    letter-spacing: -1px;
-    line-height: 1;
-  }
-
-  .stat-card.green .stat-value { color: var(--accent); }
-  .stat-card.orange .stat-value { color: var(--orange); }
-  .stat-card.blue .stat-value { color: var(--blue); }
-  .stat-card.pink .stat-value { color: var(--pink); }
-
-  .stat-detail {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-top: 8px;
-  }
-
-  /* Two-column layout */
-  .main-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    margin-bottom: 40px;
-  }
-
-  .panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 28px;
-    animation: fadeSlideUp 0.6s ease-out both;
-    animation-delay: 0.3s;
-  }
-
-  .panel-title {
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--text-dim);
-    margin-bottom: 24px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .panel-title .icon {
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-  }
-
-  /* Project list */
-  .project-item {
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    align-items: center;
-    gap: 16px;
-    padding: 14px 0;
-    border-bottom: 1px solid rgba(42,43,54,0.6);
-    transition: all 0.2s;
-  }
-
-  .project-item:last-child { border-bottom: none; }
-
-  .project-item:hover {
-    padding-left: 8px;
-  }
-
-  .project-name {
-    font-weight: 600;
-    font-size: 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .project-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .project-files {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    color: var(--text-dim);
-    text-align: right;
-  }
-
-  .project-bar-wrap {
-    width: 100px;
-    height: 6px;
-    background: rgba(42,43,54,0.8);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-
-  .project-bar {
-    height: 100%;
-    border-radius: 3px;
-    transition: width 1s ease-out;
-  }
-
-  /* File type breakdown */
-  .file-type-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .ft-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    background: var(--surface-raised);
-    border-radius: 8px;
-    transition: all 0.2s;
-  }
-
-  .ft-item:hover {
-    background: rgba(42,43,54,0.9);
-    transform: translateX(2px);
-  }
-
-  .ft-ext {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    font-weight: 700;
-    min-width: 40px;
-    padding: 3px 8px;
-    border-radius: 4px;
-    text-align: center;
-  }
-
-  .ft-count {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    margin-left: auto;
-    color: var(--text-dim);
-  }
-
-  .ft-label {
-    font-size: 13px;
-    color: var(--text);
-  }
-
-  /* Full-width bottom section */
-  .full-panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 28px;
-    animation: fadeSlideUp 0.6s ease-out both;
-    animation-delay: 0.4s;
-  }
-
-  .repo-overview {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 10px;
-  }
-
-  .repo-folder {
-    padding: 16px;
-    background: var(--surface-raised);
-    border-radius: 8px;
-    border: 1px solid transparent;
-    transition: all 0.2s;
-    cursor: default;
-  }
-
-  .repo-folder:hover {
-    border-color: var(--border);
-    transform: translateY(-2px);
-  }
-
-  .repo-folder.active {
-    border-color: rgba(110,231,183,0.3);
-    background: var(--accent-dim);
-  }
-
-  .folder-icon {
-    font-size: 20px;
-    margin-bottom: 8px;
-  }
-
-  .folder-name {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    font-weight: 500;
-    margin-bottom: 4px;
-  }
-
-  .folder-count {
-    font-size: 11px;
-    color: var(--text-dim);
-  }
-
-  /* Animations */
-  @keyframes fadeSlideUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes fadeSlideDown {
-    from { opacity: 0; transform: translateY(-12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(110,231,183,0.4); }
-    50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(110,231,183,0); }
-  }
-
-  @keyframes barGrow {
-    from { width: 0 !important; }
-  }
-
-  .bar-animate {
-    animation: barGrow 1.2s ease-out;
-  }
-
-  /* Activity timeline */
-  .timeline {
-    display: flex;
-    align-items: flex-end;
-    gap: 3px;
-    height: 80px;
-    padding-top: 16px;
-  }
-
-  .timeline-bar {
-    flex: 1;
-    border-radius: 2px 2px 0 0;
-    min-width: 4px;
-    transition: all 0.3s;
-    position: relative;
-  }
-
-  .timeline-bar:hover {
-    opacity: 0.8;
-    transform: scaleY(1.05);
-    transform-origin: bottom;
-  }
-
-  .timeline-labels {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 8px;
-  }
-
-  .timeline-labels span {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
-  }
-
-  /* responsive */
-  @media (max-width: 768px) {
-    .stats-row { grid-template-columns: repeat(2, 1fr); }
-    .main-grid { grid-template-columns: 1fr; }
-    .header { flex-direction: column; align-items: flex-start; gap: 16px; }
-  }
+:root {
+  --bg: #0c0c0e;
+  --bg2: #131316;
+  --bg3: #1a1a1f;
+  --bg4: #222228;
+  --border: #2a2a32;
+  --border2: #38384a;
+  --text: #e2e2e8;
+  --text2: #9898a8;
+  --text3: #5c5c6e;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Instrument Sans', sans-serif;
+  --serif: 'Instrument Serif', serif;
+  --green: #34d399;
+  --green2: #065f46;
+  --red: #f87171;
+  --red2: #7f1d1d;
+  --amber: #fbbf24;
+  --amber2: #78350f;
+  --blue: #60a5fa;
+  --blue2: #1e3a5f;
+  --purple: #a78bfa;
+  --pink: #f472b6;
+  --cyan: #22d3ee;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 14px; scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+/* NOISE OVERLAY */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999;
+}
+/* HEADER */
+.header {
+  background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 2rem 2.5rem 1.5rem;
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(20px);
+}
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.header h1 {
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.header h1 span { color: var(--text3); font-weight: 300; }
+.header-meta {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text3);
+  text-align: right;
+  line-height: 1.8;
+}
+.header-meta .live {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--green);
+  font-weight: 500;
+}
+.header-meta .live::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(52,211,153,0.4); }
+  50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(52,211,153,0); }
+}
+/* NAV */
+.nav {
+  display: flex; gap: 0.25rem;
+  margin-top: 1rem;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.nav a {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text3);
+  text-decoration: none;
+  padding: 0.35rem 0.65rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+}
+.nav a:hover { color: var(--text); background: var(--bg3); border-color: var(--border); }
+/* MAIN */
+.main { max-width: 1400px; margin: 0 auto; padding: 2rem 2.5rem 4rem; }
+/* SECTION */
+.section { margin-bottom: 2.5rem; }
+.section-header {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-icon {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text2);
+}
+/* CARDS */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.card:hover { border-color: var(--border2); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+.card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.card.green::before { background: var(--green); }
+.card.red::before { background: var(--red); }
+.card.amber::before { background: var(--amber); }
+.card.blue::before { background: var(--blue); }
+.card.purple::before { background: var(--purple); }
+.card-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  margin-bottom: 0.35rem;
+}
+.card-value {
+  font-family: var(--mono);
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.35rem;
+}
+.card-sub { font-size: 0.75rem; color: var(--text2); }
+/* STATUS BADGES */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.badge.done { background: var(--green2); color: var(--green); }
+.badge.blocked { background: var(--red2); color: var(--red); }
+.badge.active { background: var(--blue2); color: var(--blue); }
+.badge.pending { background: var(--amber2); color: var(--amber); }
+/* TABLE */
+.table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+th {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text3);
+  font-weight: 500;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0;
+}
+td {
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg3); }
+td:first-child { color: var(--text); font-weight: 500; }
+/* DO NOW */
+.do-now {
+  background: linear-gradient(135deg, var(--bg2), var(--bg3));
+  border: 1px solid var(--amber);
+  border-radius: 10px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.do-now::after {
+  content: '';
+  position: absolute; top: -50%; right: -10%;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(251,191,36,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.do-now-item {
+  display: flex; gap: 1rem; align-items: flex-start;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(251,191,36,0.1);
+}
+.do-now-item:last-child { border-bottom: none; padding-bottom: 0; }
+.do-now-num {
+  font-family: var(--mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--amber);
+  line-height: 1;
+  min-width: 2rem;
+}
+.do-now-text { font-size: 0.85rem; }
+.do-now-text strong { color: var(--text); }
+.do-now-text .sub { color: var(--text3); font-size: 0.75rem; margin-top: 2px; }
+/* RISK */
+.risk-item {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  transition: border-color 0.2s;
+}
+.risk-item:hover { border-color: var(--border2); }
+.risk-sev {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  min-width: 52px;
+  text-align: center;
+}
+.risk-sev.high { background: var(--red2); color: var(--red); }
+.risk-sev.med { background: var(--amber2); color: var(--amber); }
+.risk-sev.low { background: var(--green2); color: var(--green); }
+.risk-sev.resolved { background: var(--bg4); color: var(--text3); text-decoration: line-through; }
+.risk-text { font-size: 0.8rem; color: var(--text2); flex: 1; }
+/* PORT MAP */
+.port-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.5rem; }
+.port-item {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.65rem 1rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+}
+.port-num {
+  color: var(--cyan);
+  font-weight: 600;
+  min-width: 40px;
+}
+.port-name { color: var(--text2); }
+/* FLEET */
+.fleet-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.75rem; }
+.fleet-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex; flex-direction: column; gap: 0.35rem;
+}
+.fleet-name {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+.fleet-device { font-size: 0.75rem; color: var(--text3); }
+.fleet-ip {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--cyan);
+  margin-top: 0.25rem;
+}
+.fleet-status {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  margin-top: 0.25rem;
+}
+/* TOGGLE */
+details { margin-bottom: 0.5rem; }
+summary {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text2);
+  cursor: pointer;
+  padding: 0.5rem 0;
+  list-style: none;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+summary::before {
+  content: '\25B6';
+  font-size: 0.5rem;
+  color: var(--text3);
+  transition: transform 0.2s;
+}
+details[open] summary::before { transform: rotate(90deg); }
+details .content {
+  padding: 0.5rem 0 0.5rem 1.25rem;
+  font-size: 0.8rem;
+  color: var(--text2);
+  border-left: 2px solid var(--border);
+  margin-left: 0.25rem;
+}
+details .content code {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  background: var(--bg3);
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  color: var(--cyan);
+}
+/* SCORE */
+.score-bar {
+  display: flex; gap: 1rem; margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+/* FOOTER */
+.footer {
+  text-align: center;
+  padding: 2rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--text3);
+  border-top: 1px solid var(--border);
+}
+/* STAGGER ANIMATION */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate { animation: fadeUp 0.4s ease-out both; }
+.d1 { animation-delay: 0.05s; } .d2 { animation-delay: 0.1s; }
+.d3 { animation-delay: 0.15s; } .d4 { animation-delay: 0.2s; }
+.d5 { animation-delay: 0.25s; } .d6 { animation-delay: 0.3s; }
+.d7 { animation-delay: 0.35s; } .d8 { animation-delay: 0.4s; }
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .header { padding: 1.5rem; }
+  .main { padding: 1.5rem; }
+  .card-grid { grid-template-columns: 1fr; }
+  .fleet-grid { grid-template-columns: 1fr 1fr; }
+  .port-grid { grid-template-columns: 1fr 1fr; }
+}
 </style>
 </head>
 <body>
-<div class="grid-bg"></div>
-<div class="container">
 
-  <!-- Header -->
-  <div class="header">
-    <div class="header-left">
-      <h1>Code Dashboard</h1>
-      <div class="subtitle">~/Desktop/Code &mdash; daily development snapshot</div>
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1>CODE DASHBOARD <span>// DAVE OS</span></h1>
     </div>
-    <div class="header-right">
-      <div class="date-badge"><span class="pulse"></span>Thu, Mar 26 2026</div>
+    <div class="header-meta">
+      <div class="live">SYSTEM ACTIVE</div>
+      <div>Last sync: 2026-03-29 14:42 ET</div>
+      <div>Node: Duncan (192.168.1.243)</div>
     </div>
   </div>
+  <nav class="nav">
+    <a href="#donow">DO NOW</a>
+    <a href="#score">SPRINT SCORE</a>
+    <a href="#blocked">BLOCKED</a>
+    <a href="#projects">PROJECTS</a>
+    <a href="#fleet">FLEET</a>
+    <a href="#risks">RISKS</a>
+    <a href="#threads">THREADS</a>
+    <a href="#ports">PORTS</a>
+    <a href="#agents">AGENTS</a>
+    <a href="#structure">STRUCTURE</a>
+    <a href="#archive">ARCHIVE</a>
+  </nav>
+</div>
 
-  <!-- Stats Row -->
-  <div class="stats-row">
-    <div class="stat-card green">
-      <div class="stat-label">Projects Touched</div>
-      <div class="stat-value">1</div>
-      <div class="stat-detail">of 36 active projects</div>
-    </div>
-    <div class="stat-card orange">
-      <div class="stat-label">Files Changed</div>
-      <div class="stat-value">1</div>
-      <div class="stat-detail">across all projects today</div>
-    </div>
-    <div class="stat-card blue">
-      <div class="stat-label">Tests Passing</div>
-      <div class="stat-value">324</div>
-      <div class="stat-detail">garden-os story-mode &mdash; stable</div>
-    </div>
-    <div class="stat-card pink">
-      <div class="stat-label">Hot Project</div>
-      <div class="stat-value" style="font-size:28px;">codedash</div>
-      <div class="stat-detail">1 file &mdash; dashboard update &mdash; 100% of today</div>
-    </div>
-  </div>
+<div class="main">
 
-  <!-- Two Columns -->
-  <div class="main-grid">
-
-    <!-- Projects touched today -->
-    <div class="panel">
-      <div class="panel-title"><span class="icon" style="background:var(--accent-dim); color:var(--accent);">▸</span> Projects Touched Today</div>
-
-      <div class="project-item">
-        <div class="project-name"><span class="project-dot" style="background:var(--accent);"></span>codedash-mar24</div>
-        <div class="project-files">1 file &bull; dashboard update</div>
-        <div class="project-bar-wrap"><div class="project-bar bar-animate" style="width:100%; background:var(--accent);"></div></div>
+  <!-- DO NOW -->
+  <div class="section animate d1" id="donow">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--amber2);color:var(--amber);">⚡</div>
+      <div class="section-title">Do Now // Top 3</div>
+    </div>
+    <div class="do-now">
+      <div class="do-now-item">
+        <div class="do-now-num">01</div>
+        <div class="do-now-text">
+          <strong>D-001: Decide PromptLab nav strategy</strong>
+          <div class="sub">Hash mode vs state router. Recommendation: hash mode (MV3 constraint). Gates all Phase 2 UI work.</div>
+        </div>
       </div>
-    </div>
-
-    <!-- File type breakdown -->
-    <div class="panel" style="animation-delay: 0.35s;">
-      <div class="panel-title"><span class="icon" style="background:var(--blue-dim); color:var(--blue);">◆</span> File Types Modified</div>
-      <div class="file-type-grid">
-        <div class="ft-item">
-          <span class="ft-ext" style="background:var(--orange-dim); color:var(--orange);">.html</span>
-          <span class="ft-label">HTML</span>
-          <span class="ft-count">1</span>
+      <div class="do-now-item">
+        <div class="do-now-num">02</div>
+        <div class="do-now-text">
+          <strong>Set NOTION_TOKEN secret in PromptLab GitHub repo</strong>
+          <div class="sub">2 minute task. GitHub Settings > Secrets. Unblocks dashboard sync cron + Notion generator.</div>
+        </div>
+      </div>
+      <div class="do-now-item">
+        <div class="do-now-num">03</div>
+        <div class="do-now-text">
+          <strong>D-010: Decide feature gating (free / $9 / $100)</strong>
+          <div class="sub">Defines Stripe integration scope. Recommendation: 25 prompts free, Pro $9/mo.</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Full-width: All 27 Active Projects -->
-  <div class="full-panel">
-    <div class="panel-title"><span class="icon" style="background:var(--orange-dim); color:var(--orange);">⊞</span> All Active Projects <span style="font-weight:400; text-transform:none; letter-spacing:0; margin-left:8px; font-size:12px; color:var(--text-dim);">— 36 projects in github-davehomeassist/</span></div>
-    <div class="repo-overview" id="repoGrid"></div>
+  <!-- SPRINT SCORE -->
+  <div class="section animate d2" id="score">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--green2);color:var(--green);">📊</div>
+      <div class="section-title">Sprint Score // Mar 29</div>
+    </div>
+    <div class="score-bar">
+      <div class="card green">
+        <div class="card-label">Tasks Done</div>
+        <div class="card-value" style="color:var(--green);">22</div>
+        <div class="card-sub">Started at 3 this morning</div>
+      </div>
+      <div class="card blue">
+        <div class="card-label">In Progress</div>
+        <div class="card-value" style="color:var(--blue);">4</div>
+        <div class="card-sub">D-003 IPs, PLB help docs, PLB experiments, PLB create UX</div>
+      </div>
+      <div class="card amber">
+        <div class="card-label">Still Open</div>
+        <div class="card-value" style="color:var(--amber);">24</div>
+        <div class="card-sub">3 decisions blocking, rest is polish</div>
+      </div>
+      <div class="card purple">
+        <div class="card-label">Bugs Fixed</div>
+        <div class="card-value" style="color:var(--purple);">15</div>
+        <div class="card-sub">Batch 1 (8) + Batch 2 (7)</div>
+      </div>
+    </div>
+    <div class="card-grid">
+      <div class="card green">
+        <div class="card-label">Batch 1 // Codex</div>
+        <div class="card-sub">8/10 quick kills. ShieldBox checkboxes + commits, Trailkeeper undo, NotionWidgets crash + debounce, catering + freelance forms, Garden OS pages.yml. 2 blocked (email + LinkedIn URL).</div>
+      </div>
+      <div class="card green">
+        <div class="card-label">Batch 2 // Claude Code</div>
+        <div class="card-sub">7/7 sweep. Trailkeeper SW failures, API errors, weather errors, cache versioning, localStorage quota. NotionWidgets SVG XSS, NaN XP guard.</div>
+      </div>
+      <div class="card green">
+        <div class="card-label">Batch 4 // Jerri</div>
+        <div class="card-sub">IP reconciliation (.214 to .215), DEC-5 fleet update, Act Two Catering DB created (4 views). Integration key sharing manual.</div>
+      </div>
+      <div class="card blue">
+        <div class="card-label">Phillies Wire</div>
+        <div class="card-sub">Pipeline hardened. 4 upgrades shipped (stats, standings, live score, email). 3 poller bugs fixed. run.mjs orchestrator built, and live score now polls every 15s during active games.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCKED -->
+  <div class="section animate d3" id="blocked">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--red2);color:var(--red);">🔴</div>
+      <div class="section-title">Blocked // Decisions Needed</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Decision</th><th>Project</th><th>Blocks</th><th>Recommendation</th></tr>
+        <tr>
+          <td>D-001: Nav strategy</td>
+          <td>PromptLab</td>
+          <td>Phase 2 UI, App.jsx Phase 5+</td>
+          <td>Hash mode</td>
+        </tr>
+        <tr>
+          <td>D-002: Confirm Ollama on Walter + Home Assist</td>
+          <td>DaveLLM</td>
+          <td>Cluster scripts</td>
+          <td>Duncan confirmed with 3 models. Run <code>ollama list</code> on Walter + Home Assist.</td>
+        </tr>
+        <tr>
+          <td>D-010: Feature gating</td>
+          <td>PromptLab</td>
+          <td>Stripe, Lemon Squeezy, entitlements</td>
+          <td>25 free, Pro $9/mo</td>
+        </tr>
+        <tr>
+          <td>ShieldBox URL + brand</td>
+          <td>ShieldBox</td>
+          <td>All audit phases</td>
+          <td>Confirm with Carl Mercer</td>
+        </tr>
+        <tr>
+          <td>D-003: LAN IPs (Katana x2)</td>
+          <td>DaveLLM</td>
+          <td>Full cluster deployment</td>
+          <td>Katanas offsite. Walter .193, Duncan .243, Home Assist .215 confirmed.</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- PROJECT REGISTRY -->
+  <div class="section animate d4" id="projects">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--blue2);color:var(--blue);">🗂️</div>
+      <div class="section-title">Project Registry // Active</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Project</th><th>Type</th><th>Phase</th><th>Status</th><th>Next Action</th></tr>
+        <tr>
+          <td>PromptLab</td>
+          <td>React + Vite ext/web</td>
+          <td>App.jsx Phase 1-2 ✅</td>
+          <td><span class="badge blocked">Blocked D-001</span></td>
+          <td>Decide nav, then P1-A: Split CreateEditorPane</td>
+        </tr>
+        <tr>
+          <td>Phillies Wire</td>
+          <td>Vanilla HTML pipeline</td>
+          <td>Pipeline hardened // run.mjs + 4 upgrades + 3 live poller fixes</td>
+          <td><span class="badge active">Active</span></td>
+          <td>Email template hardening, verify.mjs coverage</td>
+        </tr>
+        <tr>
+          <td>Garden OS</td>
+          <td>Vite + Three.js</td>
+          <td>Sprint 0 green (329/329) // Sprints 1-4 complete</td>
+          <td><span class="badge active">Active</span></td>
+          <td>Sprint 5: difficulty presets + campaign mode</td>
+        </tr>
+        <tr>
+          <td>Daily Prophet</td>
+          <td>PS1 + Notion + GH Pages</td>
+          <td>v1.2 shipped</td>
+          <td><span class="badge active">Active</span></td>
+          <td>GitHub Actions workflow for automated publish</td>
+        </tr>
+        <tr>
+          <td>DaveLLM</td>
+          <td>FastAPI + Ollama cluster</td>
+          <td>Consolidated</td>
+          <td><span class="badge pending">Partial</span></td>
+          <td>Run ipconfig on Katana x2. Run ollama list on Walter + Home Assist.</td>
+        </tr>
+        <tr>
+          <td>ShieldBox</td>
+          <td>Static HTML</td>
+          <td>Phase 0</td>
+          <td><span class="badge blocked">Blocked</span></td>
+          <td>Confirm URL + brand with Carl Mercer</td>
+        </tr>
+        <tr>
+          <td>ReadOut</td>
+          <td>Python FastAPI + Kokoro</td>
+          <td>Headless stable // server live on Duncan 127.0.0.1:7778</td>
+          <td><span class="badge pending">Packaging pending</span></td>
+          <td>Build PyInstaller spec + packaging flow</td>
+        </tr>
+        <tr>
+          <td>Trailkeeper</td>
+          <td>Vanilla JS</td>
+          <td>7 bugs fixed</td>
+          <td><span class="badge active">Active</span></td>
+          <td>Build data import feature</td>
+        </tr>
+        <tr>
+          <td>DeckForge</td>
+          <td>Single-file HTML</td>
+          <td>v2 shipped // repo live at DaveHomeAssist/deckforge</td>
+          <td><span class="badge done">Done</span></td>
+          <td>No immediate action</td>
+        </tr>
+        <tr>
+          <td>Act Two Catering</td>
+          <td>Static HTML + PWA</td>
+          <td>Live // DB created // leads pipeline ready</td>
+          <td><span class="badge done">Done</span></td>
+          <td>Add integration key (manual)</td>
+        </tr>
+        <tr>
+          <td>Metagrid</td>
+          <td>Next.js 15</td>
+          <td>Running locally</td>
+          <td><span class="badge pending">Push blocked</span></td>
+          <td>Fork under DaveHomeAssist</td>
+        </tr>
+        <tr>
+          <td>CurlPlan</td>
+          <td>Vanilla JS</td>
+          <td>UI polish</td>
+          <td><span class="badge active">Active</span></td>
+          <td>Bounded polish pass</td>
+        </tr>
+        <tr>
+          <td>NeSy</td>
+          <td>Static/Vercel</td>
+          <td>Repo live</td>
+          <td><span class="badge pending">Not deployed</span></td>
+          <td>Connect to Vercel (2 min)</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- FLEET -->
+  <div class="section animate d5" id="fleet">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--bg4);color:var(--cyan);">🖥️</div>
+      <div class="section-title">Fleet // Network Status</div>
+    </div>
+    <div class="fleet-grid">
+      <div class="fleet-card">
+        <div class="fleet-name">Walter</div>
+        <div class="fleet-device">MSI GP66 Leopard</div>
+        <div class="fleet-ip">192.168.1.193</div>
+        <div class="fleet-status" style="color:var(--green);">● Online (1ms) // Confirmed 03-29</div>
+      </div>
+      <div class="fleet-card">
+        <div class="fleet-name">Duncan</div>
+        <div class="fleet-device">Windows PC // Current machine</div>
+        <div class="fleet-ip">192.168.1.243</div>
+        <div class="fleet-status" style="color:var(--green);">● Online // 264.95 GB free // 3 Ollama models</div>
+      </div>
+      <div class="fleet-card">
+        <div class="fleet-name">Home Assist</div>
+        <div class="fleet-device">Dell Server (Dominic)</div>
+        <div class="fleet-ip">192.168.1.215</div>
+        <div class="fleet-status" style="color:var(--green);">● Online (3ms) // Corrected from .214</div>
+      </div>
+      <div class="fleet-card">
+        <div class="fleet-name">Katana 1</div>
+        <div class="fleet-device">MSI Katana</div>
+        <div class="fleet-ip" style="color:var(--text3);">IP pending</div>
+        <div class="fleet-status" style="color:var(--amber);">◯ Offsite // Convention Center</div>
+      </div>
+      <div class="fleet-card">
+        <div class="fleet-name">Katana 2</div>
+        <div class="fleet-device">MSI Katana</div>
+        <div class="fleet-ip" style="color:var(--text3);">IP pending</div>
+        <div class="fleet-status" style="color:var(--amber);">◯ Offsite // Convention Center</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RISKS -->
+  <div class="section animate d6" id="risks">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--amber2);color:var(--amber);">⚠️</div>
+      <div class="section-title">Risks</div>
+    </div>
+    <div class="risk-item">
+      <div class="risk-sev resolved">Resolved</div>
+      <div class="risk-text"><s>Duncan disk ~1 GB free</s> // Now 264.95 GB. Ollama, CacheClip, Unreal on X: (990 Pro). Steam on X:. Downloads archived to D:.</div>
+    </div>
+    <div class="risk-item">
+      <div class="risk-sev med">Medium</div>
+      <div class="risk-text">PLB git packfile corrupted (pack-bcd883) // Fix: <code>git repack -a -d</code></div>
+    </div>
+    <div class="risk-item">
+      <div class="risk-sev med">Medium</div>
+      <div class="risk-text">Vite drift: extension 7.3.1 vs web 8.0.0 // P1-B alignment queued</div>
+    </div>
+    <div class="risk-item">
+      <div class="risk-sev med">Medium</div>
+      <div class="risk-text">NOTION_TOKEN secret not set in prompt-lab GitHub repo // Unblocks cron generator</div>
+    </div>
+  </div>
+
+  <!-- OPEN THREADS -->
+  <div class="section animate d7" id="threads">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--bg4);color:var(--amber);">🧵</div>
+      <div class="section-title">Open Threads</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>#</th><th>Thread</th><th>Status</th><th>Next Step</th></tr>
+        <tr><td>1</td><td>DaveLLM LAN IPs</td><td><span class="badge pending">Partial</span></td><td>Walter .193, Duncan .243, Home Assist .215 confirmed. Still need ipconfig on Katana x2.</td></tr>
+        <tr><td>2</td><td>ShieldBox URL + brand</td><td><span class="badge blocked">Decision</span></td><td>Confirm with Carl Mercer.</td></tr>
+        <tr><td>3</td><td>PromptLab nav strategy D-001</td><td><span class="badge blocked">Urgent</span></td><td>Choose hash mode vs state router.</td></tr>
+        <tr><td>4</td><td>Garden OS Sprints 0 + 1</td><td><span class="badge done">Resolved</span></td><td>Build stable (329/329) and Phase 1D interaction wiring completed.</td></tr>
+        <tr><td>5</td><td>NOTION_TOKEN secret</td><td><span class="badge pending">Not set</span></td><td>Add NOTION_TOKEN in PromptLab GitHub repo secrets.</td></tr>
+        <tr><td>7</td><td>ReadOut packaging</td><td><span class="badge pending">Pending</span></td><td>Server is live on Duncan :7778. Resume PyInstaller packaging flow.</td></tr>
+        <tr><td>10</td><td>Dirty repos cleanup</td><td><span class="badge pending">Partial</span></td><td>Several cleared in Batch 1. Re-scan remaining dirty repos.</td></tr>
+        <tr><td>11</td><td>DeckForge kickoff</td><td><span class="badge done">Resolved</span></td><td>Repo created and v2 shipped.</td></tr>
+        <tr><td>12</td><td>Codex memory IP drift</td><td><span class="badge pending">Cleanup</span></td><td>Update Home Assist from .214 to .215 in project memory.</td></tr>
+        <tr><td>13</td><td>Raw LLM note backfill</td><td><span class="badge pending">Cleanup</span></td><td>Backfill note bodies for 3 Raw entries in DB | LLM Conversation Notes.</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- PORT MAP -->
+  <div class="section animate d8" id="ports">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--bg4);color:var(--text2);">💻</div>
+      <div class="section-title">Port Map</div>
+    </div>
+    <div class="port-grid">
+      <div class="port-item"><span class="port-num">3000</span><span class="port-name">Metagrid</span></div>
+      <div class="port-item"><span class="port-num">5173</span><span class="port-name">PromptLab</span></div>
+      <div class="port-item"><span class="port-num">5174</span><span class="port-name">Garden OS</span></div>
+      <div class="port-item"><span class="port-num">7778</span><span class="port-name">ReadOut</span></div>
+      <div class="port-item"><span class="port-num">8000</span><span class="port-name">DaveLLM</span></div>
+    </div>
+
+    <div style="margin-top:1.5rem;">
+      <details><summary>PromptLab run commands</summary><div class="content"><code>cd prompt-lab-source/prompt-lab-extension && npm run dev</code><br><code>cd prompt-lab-source/prompt-lab-web && npm run dev</code><br><code>cd prompt-lab-source/prompt-lab-desktop && cargo tauri dev</code></div></details>
+      <details><summary>Garden OS Story Mode</summary><div class="content"><code>cd garden-os/story-mode && npm run dev</code> // localhost:5174</div></details>
+      <details><summary>DaveLLM Router</summary><div class="content"><code>cd dave-llm && source .venv/bin/activate && uvicorn app:app --host 0.0.0.0 --port 8000</code></div></details>
+      <details><summary>ReadOut TTS</summary><div class="content"><code>cd readout && source .venv/bin/activate && python main.py</code> // localhost:7778</div></details>
+      <details><summary>Static HTML projects</summary><div class="content"><code>cd &lt;project&gt; && python3 -m http.server 8000</code><br>Projects: garden-os, catering, shieldbox, mlb-ballparks-quest, curl-plan, graph-explorer, trailkeeper, notion-widgets, contractor, freelance</div></details>
+    </div>
+  </div>
+
+  <!-- AGENTS -->
+  <div class="section" id="agents">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(167,139,250,0.15);color:var(--purple);">🤖</div>
+      <div class="section-title">Agent Inventory</div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Agent</th><th>Type</th><th>Status</th><th>Trigger</th></tr>
+        <tr><td>Jerri</td><td>Personal OS</td><td><span class="badge active">Active</span></td><td>Chat</td></tr>
+        <tr><td>Daily Prophet</td><td>News / Briefing</td><td><span class="badge active">Active</span></td><td>6 AM / 10 PM ET + on demand</td></tr>
+        <tr><td>Codex</td><td>Dev Execution</td><td><span class="badge active">Active</span></td><td>Manual / prompt dispatch</td></tr>
+        <tr><td>Claude Code</td><td>Repo Ops</td><td><span class="badge active">Active</span></td><td>Manual / prompt dispatch</td></tr>
+        <tr><td>DBX Keeper</td><td>Ops / Automation</td><td><span class="badge pending">Tuning</span></td><td>Manual / audit</td></tr>
+        <tr><td>Prompt Keeper</td><td>Ops / Automation</td><td><span class="badge pending">Backlog</span></td><td>TBD</td></tr>
+        <tr><td>ARIA</td><td>Research</td><td><span class="badge pending">Backlog</span></td><td>On demand</td></tr>
+        <tr><td>Soil Searcher</td><td>Research</td><td><span class="badge pending">Backlog</span></td><td>Scheduled / manual</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- SYSTEM STRUCTURE -->
+  <div class="section" id="structure">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--bg4);color:var(--text2);">🏗️</div>
+      <div class="section-title">System Structure</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Source of Truth</div>
+      <div class="card-sub">DB | Code Dashboard // DB | Decisions // DB | Technical Decisions Log // DB | Agents // Project Registry // DB | LLM Conversation Notes // Tasks Tracker (Active Sites Task Tracker)</div>
+      <div class="card-label" style="margin-top:1rem;">Workflow Notes</div>
+      <div class="card-sub">Governance: DOC | Code Dashboard - System<br>Generator: notionDashboardUpdate.mjs in code-dashboard repo<br>Track 1 blocker: NOTION_TOKEN secret<br>Track 2: standalone HTML dashboard snapshot</div>
+    </div>
+  </div>
+
+  <!-- ARCHIVE -->
+  <div class="section" id="archive">
+    <div class="section-header">
+      <div class="section-icon" style="background:var(--bg4);color:var(--text2);">📦</div>
+      <div class="section-title">Session Archive</div>
+    </div>
+    <details>
+      <summary>Patch Sprint Day // Mar 29, 2026</summary>
+      <div class="content">22 tasks closed. Batches 1 (Codex, 8 quick kills), 2 (Claude Code, 7 Trailkeeper+NotionWidgets fixes), 4 (Jerri, IP reconciliation + Act Two DB + DEC-5). Phillies Wire pipeline hardened with 4 upgrades, then live score polling tightened to 15s during active games. Duncan C: drive recovered from 1.09 GB to 264.95 GB. DB | LLM Conversation Notes schema expanded (19 topic tags, Codex source). Tasks Tracker schema expanded (14 project options). Daily Prophet rebuilt and published (3 issues). Fleet IPs confirmed (Walter .193, Duncan .243, Home Assist .215, Katanas offsite). ReadOut server running on Duncan :7778.</div>
+    </details>
+    <details>
+      <summary>Full Portfolio Audit // Mar 28, 2026</summary>
+      <div class="content">33 open issues across 8 projects (11xP1, 22xP2). 3 broken contact forms. 2 repos uncommitted. NotionWidgets: double-submit + crash + XSS surface. Priority: commit uncommitted, fix P1 forms, harden widgets.</div>
+    </details>
+    <details>
+      <summary>Agent Ecosystem Audit + Phillies Wire v1.0.0 // Mar 28, 2026</summary>
+      <div class="content">DB | Agents reconciled from 7 to 18 rows. Prompt Schema v2 broadcast deployed to 5 agents. ARIA specialist team (VAULT, HERALD, LENS, SCRIBE, WARD) fully specced. Phillies Wire 6-file project zip shipped with CSS architecture, data schema, and Codex handoff docs.</div>
+    </details>
   </div>
 
 </div>
 
-<script>
-const projects = [
-  { name: 'codedash-mar24', touched: 1 },
-  { name: 'garden-os-windows', touched: 0 },
-  { name: 'prompt-lab', touched: 0 },
-  { name: 'DaveHomeAssist.github.io', touched: 0 },
-  { name: 'DaveLLM', touched: 0 },
-  { name: 'NotionWidgets', touched: 0 },
-  { name: 'Utility', touched: 0 },
-  { name: 'ai-agent-personalities', touched: 0 },
-  { name: 'catering', touched: 0 },
-  { name: 'contractor', touched: 0 },
-  { name: 'curl-plan', touched: 0 },
-  { name: 'curling-simulator', touched: 0 },
-  { name: 'elysium-landing', touched: 0 },
-  { name: 'festival-atlas', touched: 0 },
-  { name: 'freelance', touched: 0 },
-  { name: 'freelance-landing', touched: 0 },
-  { name: 'garden-planner', touched: 0 },
-  { name: 'gemini-api-cost-calculator', touched: 0 },
-  { name: 'graph-explorer', touched: 0 },
-  { name: 'lansdowne-lighting-plot', touched: 0 },
-  { name: 'metagrid', touched: 0 },
-  { name: 'mlb-ballparks-quest', touched: 0 },
-  { name: 'park-rave-005', touched: 0 },
-  { name: 'quest-platform', touched: 0 },
-  { name: 'repo-favicons', touched: 0 },
-  { name: 'sdlc-tool-stack-map', touched: 0 },
-  { name: 'theme-organizer-resource', touched: 0 },
-  { name: 'trailkeeper', touched: 0 },
-  { name: 'web-templates', touched: 0 },
-];
+<div class="footer">
+  CODE DASHBOARD // DAVE OS // SOURCES: DB | Code Dashboard · DB | Decisions · DB | Agents · Tasks Tracker · DB | LLM Conversation Notes
+</div>
 
-const grid = document.getElementById('repoGrid');
-projects.forEach((p, i) => {
-  const el = document.createElement('div');
-  el.className = 'repo-folder' + (p.touched > 0 ? ' active' : '');
-  el.style.animationDelay = (0.4 + i * 0.02) + 's';
-  el.innerHTML = `
-    <div class="folder-icon">${p.touched > 0 ? '📂' : '📁'}</div>
-    <div class="folder-name">${p.name}</div>
-    <div class="folder-count">${p.touched > 0 ? p.touched + ' files today' : 'idle'}</div>
-  `;
-  grid.appendChild(el);
-});
-</script>
 </body>
 </html>
